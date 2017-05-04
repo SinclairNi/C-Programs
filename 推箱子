@@ -1,0 +1,239 @@
+
+#include<stdio.h>
+#include<stdlib.h>
+#define ROWS 10	//行
+#define COLS 11	//列
+
+void showMap();	//打印游戏地图
+char enterDirection();	//输入方向并返回
+void moveToUp();	//向上移动
+void moveToDown();	//向下移动
+void moveToLeft();	//向左移动
+void moveToRight();	//向右移动
+
+int personRow = 3;	//保存人物的行坐标
+int personCol = 2;	//保存人物的列坐标
+
+//游戏地图，可更改
+//(可以尝试从文件里读取地图)
+char map[ROWS][COLS] = {
+	"##########",
+	"#  ####  #",
+	"# X####  #",
+	"# O      #",
+	"######   #",
+	"#  ####  #",
+	"#        #",
+	"#   ######",
+	"#         ",
+	"##########",
+	};
+
+int main()
+{
+	int flag = 1;	//循环条件， 非0则是继续循环 
+	while(flag){
+		system("cls");	//清屏 
+		showMap();	//打印游戏地图
+		
+		if(map[8][9] == 'X')	//通关条件 
+		{
+			printf("Succeed! You are great!\n");
+			break;
+		}
+					//输入人物移动方向
+		char dir = enterDirection();
+
+		switch (dir) //对用户输入的方向进行操作或者结束游戏 
+		{
+			case 'w':
+			case 'W':
+				moveToUp();		//将人物向上移动
+				break;
+			case 's':
+			case 'S':
+				moveToDown();	//将人物向下移动
+				break;
+			case 'a':
+			case 'A':
+				moveToLeft();	//将人物向左移动
+				break;
+			case 'd':
+			case 'D':
+				moveToRight();	//将人物向右移动
+				break;
+			case 'q':
+			case 'Q':
+				printf("Game Over!\n");
+				flag = 0; 
+				break;
+
+		}
+	
+	}
+
+}
+
+
+void showMap()	//打印游戏地图
+{
+	//显示地图就是打印map数组中的元素
+	for (int r = 0; r < ROWS; r++){
+		for (int c = 0; c < COLS; c++)
+			printf("%c", map[r][c]);
+	printf("\n");
+	}
+}
+
+char enterDirection()	//输入方向并返回
+{
+	printf("请输入人物移动方向：w上，s下，a左，d右，q退出\n");
+	printf("说明 ：O ->人物    X->箱子   每次按下Enter键继续\n");
+	printf("请输入："); 
+	char dir;
+
+	rewind(stdin);//清空scanf输入缓存
+	scanf("%c", &dir);	//用户输入 
+	
+	return dir;	//返回输入的数据 
+
+}
+/*
+改变人物和箱子的实质是对地图上格点做出调换即可 
+
+
+*/ 
+void moveToUp()	//向上移动
+{
+	int nextPersonRow = personRow - 1;	//人物当前行坐标-1
+	int nextPersonCol = personCol;		//人物当前列坐标不变
+
+	//如果下一步是空格‘ ’可以移动
+	if (map[nextPersonRow][nextPersonCol] == ' ')
+	{
+		map[nextPersonRow][nextPersonCol] = 'O';	//将下一步的格子换为 'O' 
+		map[personRow][personCol] = ' ';	//将原来的格子换为 空格 ' ' 
+		
+		//调整初始位置 
+		personRow = nextPersonRow;
+		personCol = nextPersonCol;
+	}
+	//如果下一步是 X 则改变箱子和人物位置 
+	else if (map[nextPersonRow][nextPersonCol] == 'X')
+	{
+		int nextBoxRow = nextPersonRow - 1;	
+		int nextBoxCol = nextPersonCol;
+		
+		if (map[nextBoxRow][nextBoxCol] == ' ')
+		{
+			//改变人物位置 ，即将下一步的格子分别换为 X 和 O 
+			map[nextBoxRow][nextBoxCol] = 'X';		
+			map[nextPersonRow][nextPersonCol] = 'O';
+			
+			map[personRow][personCol] = ' ';	//将原来的位置变为空格
+			//调整初始位置 
+			personRow = nextPersonRow;
+			personCol = nextPersonCol;
+		}
+		
+	}
+}
+
+void moveToDown()	//向下移动
+{
+	int nextPersonRow = personRow + 1;	//人物当前行坐标-1
+	int nextPersonCol = personCol;		//人物当前列坐标不变
+
+	//如果下一步是空格‘ ’可以移动
+	if (map[nextPersonRow][nextPersonCol] == ' ')
+	{
+		map[nextPersonRow][nextPersonCol] = 'O';
+		map[personRow][personCol] = ' ';
+
+		personRow = nextPersonRow;
+		personCol = nextPersonCol;
+	}
+	//如果下一步是 # 则不可以移动
+	else if (map[nextPersonRow][nextPersonCol] == 'X')
+	{
+		int nextBoxRow = nextPersonRow + 1;
+		int nextBoxCol = nextPersonCol;
+		
+		if (map[nextBoxRow][nextBoxCol] == ' ')
+		{
+			map[nextBoxRow][nextBoxCol] = 'X';
+			map[nextPersonRow][nextPersonCol] = 'O';
+			//改变人物位置 
+			map[personRow][personCol] = ' ';
+			personRow = nextPersonRow;
+			personCol = nextPersonCol;
+		}
+		
+	}
+}
+
+void moveToLeft()	//向左移动
+{
+	int nextPersonRow = personRow;	//人物当前行坐标-1
+	int nextPersonCol = personCol - 1;		//人物当前列坐标不变
+
+	//如果下一步是空格‘ ’可以移动
+	if (map[nextPersonRow][nextPersonCol] == ' ')
+	{
+		map[nextPersonRow][nextPersonCol] = 'O';
+		map[personRow][personCol] = ' ';
+
+		personRow = nextPersonRow;
+		personCol = nextPersonCol;
+	}
+	//如果下一步是 # 则不可以移动
+	else if (map[nextPersonRow][nextPersonCol] == 'X')
+	{
+		int nextBoxRow = nextPersonRow;
+		int nextBoxCol = nextPersonCol - 1;
+		
+		if (map[nextBoxRow][nextBoxCol] == ' ')
+		{
+			map[nextBoxRow][nextBoxCol] = 'X';
+			map[nextPersonRow][nextPersonCol] = 'O';
+			//改变人物位置 
+			map[personRow][personCol] = ' ';
+			personRow = nextPersonRow;
+			personCol = nextPersonCol;
+		}
+		
+	}
+}
+
+void moveToRight()	//向右移动
+{
+	int nextPersonRow = personRow;	//人物当前行坐标-1
+	int nextPersonCol = personCol + 1;		//人物当前列坐标不变
+
+	//如果下一步是空格‘ ’可以移动
+	if (map[nextPersonRow][nextPersonCol] == ' ')
+	{
+		map[nextPersonRow][nextPersonCol] = 'O';
+		map[personRow][personCol] = ' ';
+
+		personRow = nextPersonRow;
+		personCol = nextPersonCol;
+	}
+	//如果下一步是 # 则不可以移动
+	else if (map[nextPersonRow][nextPersonCol] == 'X')
+	{
+		int nextBoxRow = nextPersonRow;
+		int nextBoxCol = nextPersonCol + 1;
+		
+		if (map[nextBoxRow][nextBoxCol] == ' ')
+		{
+			map[nextBoxRow][nextBoxCol] = 'X';
+			map[nextPersonRow][nextPersonCol] = 'O';
+			//改变人物位置 
+			map[personRow][personCol] = ' ';
+			personRow = nextPersonRow;
+			personCol = nextPersonCol;
+		}
+		
+	}
+}
